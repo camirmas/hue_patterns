@@ -12,8 +12,6 @@ defmodule PatternsApi do
       supervisor(PatternsApi.Repo, []),
       # Start the endpoint when the application starts
       supervisor(PatternsApi.Endpoint, []),
-      # Start your own worker by calling: PatternsApi.Worker.start_link(arg1, arg2, arg3)
-      # worker(PatternsApi.Worker, [arg1, arg2, arg3]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

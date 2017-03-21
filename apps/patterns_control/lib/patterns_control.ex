@@ -15,4 +15,11 @@ defmodule PatternsControl do
   def hello do
     :world
   end
+
+  @doc """
+  Connects to the Hue bridge and sets up workers for lights
+  """
+  def connect(ip_address) when is_binary(ip_address) do
+    PatternsControl.Connector.connect(ip_address)
+  end
 end
