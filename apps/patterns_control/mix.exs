@@ -37,6 +37,6 @@ defmodule PatternsControl.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{ :huex, "~> 0.6" }]
   end
 end
