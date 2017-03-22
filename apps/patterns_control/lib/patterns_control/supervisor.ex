@@ -3,7 +3,7 @@ defmodule PatternsControl.Supervisor do
   import Supervisor.Spec
 
   def start_link do
-    result = {:ok, sup} = Supervisor.start_link(__MODULE__, [])
+    result = {:ok, sup} = Supervisor.start_link(__MODULE__, [], name: __MODULE__)
     start_workers(sup)
 
     result
@@ -15,6 +15,6 @@ defmodule PatternsControl.Supervisor do
 
   def start_workers(sup) do
     {:ok, bridge_sup} = Supervisor.start_child(sup, supervisor(PatternsControl.BridgeSupervisor, []))
-    Supervisor.start_child(sup, worker(PatternsControl.Connector, [bridge_sup]))
+    Supervisor.start_child(sup, worker(PatternsControl.BridgeServer, [bridge_sup]))
   end
 end

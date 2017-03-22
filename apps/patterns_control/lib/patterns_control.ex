@@ -3,23 +3,33 @@ defmodule PatternsControl do
   Documentation for PatternsControl.
   """
 
+  alias PatternsControl.{BridgeServer, Bridge}
+
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> PatternsControl.hello
-      :world
-
+  Attempts to connect to the given Hue bridge.
   """
-  def hello do
-    :world
+  def connect(pid) when is_pid(pid) do
+    Bridge.connect(pid)
   end
 
   @doc """
-  Connects to the Hue bridge and sets up workers for lights
+  Creates a new bridge at the given IP Address.
   """
-  def connect(ip_address) when is_binary(ip_address) do
-    PatternsControl.Connector.connect(ip_address)
+  def create_bridge(ip_address) do
+    BridgeServer.create_bridge(ip_address)
+  end
+
+  @doc """
+  Gets all bridges associated with the given IP Address.
+  """
+  def get_bridges(ip_address) when is_binary(ip_address) do
+    BridgeServer.get_bridges(ip_address)
+  end
+
+  @doc """
+  Removes all bridges associated with the given IP Address.
+  """
+  def clear_bridges(ip_address) when is_binary(ip_address) do
+    BridgeServer.clear_bridges(ip_address)
   end
 end

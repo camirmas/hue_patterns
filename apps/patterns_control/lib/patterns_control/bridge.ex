@@ -7,18 +7,25 @@ defmodule PatternsControl.Bridge do
     GenServer.start_link(__MODULE__, ip_address)
   end
 
+  def connect(pid) do
+    GenServer.call(pid, :connect)
+  end
+
   # Callbacks
 
   def init(ip_address) do
-    {:ok, bridge} = connect(ip_address)
-    {:ok, light_workers} = create_light_workers(bridge)
+    {:ok, %{bridge: nil, ip_address: ip_address, light_workers: []}}
+  end
 
-    {:ok, %{bridge: bridge, ip_address: ip_address, light_workers: light_workers}}
+  def handle_call(:connect, _from, %{ip_address: ip_address} = state) do
+    bridge = _connect(ip_address)
+
+    {:reply, bridge, %{state | bridge: bridge}}
   end
 
   # Private
 
-  defp connect(ip_address) when is_binary(ip_address) do
+  defp _connect(ip_address) do
     Huex.connect(ip_address)
     |> Huex.authorize("hue-patterns#goku")
     |> create_light_workers
