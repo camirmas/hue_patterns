@@ -14,24 +14,39 @@ defmodule PatternsControl.Bridge do
   # Callbacks
 
   def init(ip_address) do
-    {:ok, %{bridge: nil, ip_address: ip_address, light_workers: []}}
+    {:ok, %{bridge: nil, ip_address: ip_address}}
   end
 
-  def handle_call(:connect, _from, %{ip_address: ip_address} = state) do
-    bridge = _connect(ip_address)
+  def handle_call(:connect, _from, %{ip_address: ip_address,
+    bridge: nil} = state) do
+      case _connect(ip_address) do
+        %Huex.Bridge{status: :ok} = bridge ->
+          {:reply, :ok, %{state | bridge: bridge}}
+        %Huex.Bridge{status: :error, error: %{"description" => description}} ->
+          {:reply, {:error, description}, state}
+      end
+  end
 
-    {:reply, bridge, %{state | bridge: bridge}}
+  def handle_call(:connect, _from, %{ip_address: ip_address,
+    bridge: bridge} = state) do
+      %Huex.Bridge{status: :ok} = bridge = _reconnect(ip_address, bridge.username)
+
+      {:reply, :ok, %{state | bridge: bridge}}
   end
 
   # Private
 
-  defp _connect(ip_address) do
+  defp _connect(ip_address) when is_binary(ip_address) do
     Huex.connect(ip_address)
     |> Huex.authorize("hue-patterns#goku")
-    |> create_light_workers
   end
 
-  defp create_light_workers(_bridge) do
+  defp _reconnect(ip_address, username) when
+    is_binary(ip_address) and is_binary(username) do
+      Huex.connect(ip_address, username)
+  end
+
+  defp _create_light_workers(_bridge) do
     {:ok, []}
   end
 end

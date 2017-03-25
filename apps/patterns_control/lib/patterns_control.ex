@@ -3,7 +3,8 @@ defmodule PatternsControl do
   Documentation for PatternsControl.
   """
 
-  alias PatternsControl.{BridgeServer, Bridge}
+  alias PatternsControl.Bridge
+  alias PatternsControl.BridgeServer
 
   @doc """
   Attempts to connect to the given Hue bridge.

@@ -2,7 +2,7 @@ defmodule PatternsControlTest do
   use ExUnit.Case
   doctest PatternsControl
 
-  alias PatternsControl.{BridgeSupervisor, BridgeServer}
+  alias PatternsControl.{BridgeServer, BridgeSupervisor}
 
   @ip_address "123.123.123.123"
 
