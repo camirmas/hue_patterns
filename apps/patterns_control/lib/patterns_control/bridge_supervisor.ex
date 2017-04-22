@@ -7,8 +7,9 @@ defmodule PatternsControl.BridgeSupervisor do
   end
 
   def init(_) do
+    opts = [restart: :transient]
     children = [
-      worker(PatternsControl.Bridge, [], [])
+      worker(PatternsControl.Bridge, [], opts)
     ]
     supervise(children, strategy: :simple_one_for_one)
   end

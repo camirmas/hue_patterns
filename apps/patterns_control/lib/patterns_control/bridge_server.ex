@@ -1,14 +1,20 @@
 defmodule PatternsControl.BridgeServer do
   use GenServer
 
+  alias PatternsControl.Bridge
+
   # API
 
   def start_link(sup) do
     GenServer.start_link(__MODULE__, sup, name: __MODULE__)
   end
 
-  def create_bridge(ip_address) do
+  def create_bridge(ip_address, false) do
     GenServer.call(__MODULE__, {:create_bridge, ip_address})
+  end
+
+  def create_bridge(ip_address, _) do
+    GenServer.call(__MODULE__, {:create_bridge_and_connect, ip_address})
   end
 
   def get_bridges(ip_address) do
@@ -28,8 +34,22 @@ defmodule PatternsControl.BridgeServer do
 
   def handle_call({:create_bridge, ip_address}, _from,
     %{sup: sup, bridges: bridges} = state) do
-      bridge_pid = create_bridge(sup, ip_address, bridges)
+      bridge_pid = _create_and_insert_bridge(sup, ip_address, bridges)
       {:reply, {:ok, bridge_pid}, state}
+  end
+
+  def handle_call({:create_bridge_and_connect, ip_address}, _from,
+    %{sup: sup, bridges: bridges} = state) do
+      bridge_pid = _create_bridge!(sup, ip_address)
+
+      case Bridge.connect(bridge_pid) do
+        :ok ->
+          _insert_bridge(bridge_pid, ip_address, bridges)
+          {:reply, {:ok, bridge_pid}, state}
+        error ->
+          Process.exit(bridge_pid, :shutdown)
+          {:reply, error, state}
+      end
   end
 
   def handle_call({:get_bridges, ip_address}, _from, %{bridges: bridges} = state) do
@@ -49,17 +69,23 @@ defmodule PatternsControl.BridgeServer do
 
   # Private
 
-  defp create_bridge(sup, ip_address, bridges) do
-    {:ok, pid} = Supervisor.start_child(sup, [ip_address])
-
+  defp _insert_bridge(pid, ip_address, bridges) do
     case :ets.lookup(bridges, ip_address) do
       [] ->
         :ets.insert(bridges, {ip_address, [pid]})
       [{^ip_address, pids}] ->
         :ets.insert(bridges, {ip_address, pids ++ [pid]})
     end
-
-    #PatternsControl.Bridge.connect(pid)
     pid
+  end
+
+  defp _create_bridge!(sup, ip_address) do
+    {:ok, pid} = Supervisor.start_child(sup, [ip_address])
+    pid
+  end
+
+  defp _create_and_insert_bridge(sup, ip_address, bridges) do
+    _create_bridge!(sup, ip_address)
+    |> _insert_bridge(ip_address, bridges)
   end
 end

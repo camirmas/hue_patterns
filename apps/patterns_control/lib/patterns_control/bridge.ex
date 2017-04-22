@@ -11,6 +11,10 @@ defmodule PatternsControl.Bridge do
     GenServer.call(pid, :connect)
   end
 
+  def get_info(pid) do
+    GenServer.call(pid, :get_info)
+  end
+
   # Callbacks
 
   def init(ip_address) do
@@ -34,6 +38,10 @@ defmodule PatternsControl.Bridge do
       {:reply, :ok, %{state | bridge: bridge}}
   end
 
+  def handle_call(:get_info, _from, %{bridge: bridge} = state) do
+    {:reply, bridge, state}
+  end
+
   # Private
 
   defp _connect(ip_address) when is_binary(ip_address) do
@@ -46,7 +54,11 @@ defmodule PatternsControl.Bridge do
       Huex.connect(ip_address, username)
   end
 
-  defp _create_light_workers(_bridge) do
+  defp _create_light_workers(bridge) do
+    bridge
+    |> Huex.lights
+    |> Enum.each(_create_light_worker)
+
     {:ok, []}
   end
 end

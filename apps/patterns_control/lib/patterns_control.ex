@@ -16,8 +16,8 @@ defmodule PatternsControl do
   @doc """
   Creates a new bridge at the given IP Address.
   """
-  def create_bridge(ip_address) do
-    BridgeServer.create_bridge(ip_address)
+  def create_bridge(ip_address, connect \\ true) do
+    BridgeServer.create_bridge(ip_address, connect)
   end
 
   @doc """
@@ -25,6 +25,13 @@ defmodule PatternsControl do
   """
   def get_bridges(ip_address) when is_binary(ip_address) do
     BridgeServer.get_bridges(ip_address)
+  end
+
+  @doc """
+  Gets info for a Bridge given its pid.
+  """
+  def get_bridge(pid) when is_pid(pid) do
+    Bridge.get_info(pid)
   end
 
   @doc """
