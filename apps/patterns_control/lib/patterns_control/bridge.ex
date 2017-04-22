@@ -53,12 +53,4 @@ defmodule PatternsControl.Bridge do
     is_binary(ip_address) and is_binary(username) do
       Huex.connect(ip_address, username)
   end
-
-  defp _create_light_workers(bridge) do
-    bridge
-    |> Huex.lights
-    |> Enum.each(_create_light_worker)
-
-    {:ok, []}
-  end
 end

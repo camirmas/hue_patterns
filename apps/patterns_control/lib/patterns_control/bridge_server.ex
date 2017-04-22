@@ -76,6 +76,7 @@ defmodule PatternsControl.BridgeServer do
       [{^ip_address, pids}] ->
         :ets.insert(bridges, {ip_address, pids ++ [pid]})
     end
+
     pid
   end
 
